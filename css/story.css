@@ -1,0 +1,114 @@
+/* MOTIF — scroll story on the home page.
+   The stage is pinned while the section scrolls past; js/story.js moves the camera. */
+
+.story { position: relative; height: 720vh; }
+@media (max-width: 720px) { .story { height: 600vh; } }
+
+.story__stage {
+  position: sticky; top: 0;
+  height: 100vh; height: 100svh;
+  overflow: hidden;
+  background: var(--ground);
+}
+
+/* One slot per image. Each slot is opaque and isolated, so the multiply blend
+   only mixes an image with its own background, never with the layer below. */
+.slot { position: absolute; inset: 0; background: var(--ground); isolation: isolate; }
+.slot img {
+  position: absolute; left: 0; top: 0;
+  width: 1376px; height: 1824px; max-width: none;
+  transform-origin: 0 0;
+  mix-blend-mode: multiply;
+  user-select: none; -webkit-user-drag: none;
+}
+
+/* Light passing over the weave */
+.story__sheen {
+  position: absolute; left: 0; top: 0;
+  width: 140px; height: 520px;
+  margin: -260px 0 0 -70px;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.55) 50%, rgba(255,255,255,0) 100%);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Ring that points at the gold pins */
+.story__mark {
+  position: absolute; left: 0; top: 0;
+  width: 64px; height: 64px; margin: -32px 0 0 -32px;
+  border: 1.5px solid var(--accent); border-radius: 50%;
+  pointer-events: none; opacity: 0;
+}
+
+/* Colour wipe */
+.story__wipe { position: absolute; top: 0; bottom: 0; left: 0; width: 1px; background: var(--ink); opacity: 0; pointer-events: none; }
+.story__label {
+  position: absolute; top: 18%;
+  font-family: var(--mono); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink);
+  white-space: nowrap; opacity: 0; pointer-events: none;
+}
+.story__label--a { transform: translateX(calc(-100% - 16px)); }
+.story__label--b { transform: translateX(16px); }
+
+/* Progress */
+.story__bar { position: absolute; left: 0; top: 0; height: 2px; width: 100%; background: var(--accent); transform-origin: 0 0; transform: scaleX(0); }
+.rail {
+  position: absolute; right: var(--gutter); top: 50%; transform: translateY(-50%);
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 14px;
+  font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: #9A9A95;
+}
+.rail li { display: flex; align-items: center; gap: 10px; transition: color .25s; }
+.rail li::before { content: ""; width: 16px; height: 2px; background: currentColor; transition: width .25s; }
+.rail li.is-on { color: var(--ink); }
+.rail li.is-on::before { width: 28px; background: var(--accent); }
+@media (max-width: 900px) { .rail { display: none; } }
+
+/* Chapter text */
+.chap {
+  position: absolute; left: var(--gutter);
+  max-width: 470px;
+  display: flex; flex-direction: column; gap: 16px;
+  opacity: 0; pointer-events: none;
+}
+.chap.is-on { pointer-events: auto; }
+.chap--top { top: clamp(28px, 8vh, 96px); max-width: 760px; }
+.chap--bottom {
+  bottom: clamp(20px, 6vh, 64px); left: calc(var(--gutter) - 20px);
+  padding: 18px 20px; border-radius: 6px;
+  background: rgba(239, 239, 236, 0.86);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.chap h1 { font-size: clamp(44px, 6.6vw, 104px); line-height: .96; letter-spacing: -0.02em; }
+.chap h2 { font-size: clamp(30px, 3.6vw, 52px); line-height: 1; }
+.chap p { font-size: 17px; line-height: 1.55; color: var(--text); }
+.chap .row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
+.chap__big { font-family: var(--mono); font-weight: 500; font-size: clamp(88px, 13vw, 200px); line-height: .9; color: var(--accent); letter-spacing: -0.03em; }
+.chap__unit { font-size: .45em; letter-spacing: 0; margin-left: .12em; }
+.hint { display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.hint::after { content: ""; width: 1px; height: 40px; background: var(--muted); }
+
+@media (max-width: 720px) {
+  .chap { right: var(--gutter); }
+  .chap p { font-size: 16px; }
+  .chap--bottom { bottom: 16px; right: calc(var(--gutter) - 12px); left: calc(var(--gutter) - 12px); padding: 14px 12px; }
+}
+
+/* Fit statement: words fill in as you scroll */
+.say { padding-top: 120px; padding-bottom: 72px; }
+.say__text { font-stretch: 125%; font-weight: 800; text-transform: uppercase; letter-spacing: -0.01em; line-height: 1.02; font-size: clamp(34px, 5.4vw, 80px); margin: 0; max-width: 1100px; }
+.say__text .w { color: #C4C4BE; transition: color .2s linear; }
+.say__text .w.is-on { color: var(--ink); }
+.say + .wrap .cols { padding-bottom: 96px; }
+
+/* Shop cards: second view on hover, tilt toward the pointer */
+.card__shot { position: relative; transition: transform .25s ease-out; transform-style: preserve-3d; }
+.card__shot img { position: absolute; inset: 0; transition: opacity .35s ease; }
+.card__shot .card__alt { opacity: 0; }
+.card__shot:hover .card__alt, .card__shot:focus-visible .card__alt { opacity: 1; }
+.card__shot:hover .card__main, .card__shot:focus-visible .card__main { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .card__shot, .card__shot img, .rail li, .rail li::before, .say__text .w { transition: none; }
+}
