@@ -17,7 +17,7 @@ Shopify is used only as the backend (products, inventory, checkout, orders).
     js/site.js        menu, waitlist form, colour/view switching, Shopify checkout
     js/story.js       home page: scroll-driven camera over the four product images
     js/vendor/        Lenis 1.3.27 (MIT), smooth wheel scrolling on the home page
-    assets/story/     story copies of the product images with the page colour baked in
+    assets/story/     story copy of the product image with the page colour baked in
     assets/           product images (webp)
 
 ## Run locally
@@ -64,21 +64,18 @@ Never put an Admin API token in `js/config.js`: everything in these folders is p
 ## Scroll story (home page)
 
 The pinned section at the top of the home page is driven entirely by scroll
-position: nothing plays on its own. `js/story.js` places the four product images
-and moves a "camera" over them:
+position: nothing plays on its own. `js/story.js` moves a "camera" over the caramel
+3/4 product image:
 
-    0.00–0.10  whole pair, caramel 3/4
-    0.10–0.28  zoom into the temple inlay, levelled
-    0.28–0.42  light sweeps across the weave
-    0.445–0.465 cut to the side view on the inlay
-    0.48–0.60  pull back, ring on the gold pins
-    0.66–0.78  wipe from caramel to black
-    0.84–0.95  black 3/4, weight counts up to 20 g
+    0.00–0.14  01 whole pair, caramel 3/4
+    0.14–0.38  zoom into the temple inlay, levelled
+    0.40–0.58  02 light sweeps across the weave
+    0.62–0.78  pull back out
+    0.78–1.00  03 weight counts up to 20 g
 
 Chapter text uses `data-in` / `data-out` on each `.chap` element with the same 0–1 scale.
-If you replace the product images, regenerate `assets/story/` (each image multiplied by
-the page colour #EFEFEC) and update the `full`, `inlay`, `len`, `angle` and
-`pins` values in `LAYERS` (fractions of the image), or the zoom will land in the wrong place.
-With "reduce motion" turned on in the OS, the zoom and sweep are skipped and only the
-image changes remain.
+If you replace the product image, regenerate `assets/story/caramel-34.webp` (the image
+multiplied by the page colour #EFEFEC) and update the `full`, `inlay`, `len` and `angle` values in `LAYERS` (fractions of the image), or the zoom will land in the wrong place.
+With "reduce motion" turned on in the OS, the zoom and sweep are skipped; the text
+chapters still change as you scroll.
 
