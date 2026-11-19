@@ -15,7 +15,7 @@ Shopify is used only as the backend (products, inventory, checkout, orders).
     css/story.css     home page scroll story, fit statement, shop-card hover
     js/config.js      everything you need to edit before launch
     js/site.js        menu, waitlist form, colour/view switching, Shopify checkout
-    js/story.js       home page: scroll-driven camera over the four product images
+    js/story.js       home page: scroll-driven camera over the product image
     js/vendor/        Lenis 1.3.27 (MIT), smooth wheel scrolling on the home page
     assets/story/     story copy of the product image with the page colour baked in
     assets/           product images (webp)

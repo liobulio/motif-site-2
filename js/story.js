@@ -27,21 +27,14 @@
   // inlay = centre of the carbon strip, len = strip length as a fraction of image width,
   // angle = strip slope in degrees (the camera levels it while zooming in).
   var LAYERS = {
-    cSide: { src: 'assets/story/caramel-side.webp', full: [0.500, 0.485], inlay: [0.465, 0.500], len: 0.33, angle: 0, pins: [0.165, 0.500] },
-    c34:   { src: 'assets/story/caramel-34.webp',   full: [0.500, 0.490], inlay: [0.739, 0.476], len: 0.19, angle: -11.5 },
-    bSide: { src: 'assets/story/black-side.webp',   full: [0.505, 0.505], inlay: [0.475, 0.545], len: 0.33, angle: 0 },
-    b34:   { src: 'assets/story/black-34.webp',     full: [0.505, 0.475], inlay: [0.735, 0.466], len: 0.19, angle: -11 }
+    c34: { src: 'assets/story/caramel-34.webp', full: [0.500, 0.490], inlay: [0.739, 0.476], len: 0.19, angle: -11.5 }
   };
-  var ORDER = ['cSide', 'c34', 'bSide', 'b34']; // bottom to top
+  var ORDER = ['c34'];
 
   if (story) {
     var stage = story.querySelector('.story__stage');
     var anchor = story.querySelector('.story__scrim');
     var sheen = story.querySelector('.story__sheen');
-    var mark = story.querySelector('.story__mark');
-    var wipe = story.querySelector('.story__wipe');
-    var labelA = story.querySelector('.story__label--a');
-    var labelB = story.querySelector('.story__label--b');
     var bar = story.querySelector('.story__bar');
     var count = story.querySelector('[data-count]');
     var chaps = [].slice.call(story.querySelectorAll('.chap'));
@@ -57,7 +50,6 @@
       stage.insertBefore(slot, anchor);
       LAYERS[id].slot = slot;
       LAYERS[id].img = img;
-      LAYERS[id].shown = true;
     });
 
     var vw, vh, mobile, W, storyTop, storyLen;
@@ -82,64 +74,39 @@
       var dx = (pt[0] - c.f[0]) * NW * c.s, dy = (pt[1] - c.f[1]) * NH * c.s;
       return [c.cx + dx * Math.cos(r) - dy * Math.sin(r), c.cy + dx * Math.sin(r) + dy * Math.cos(r)];
     }
-    function show(L, o) {
-      L.slot.style.opacity = o;
-      var on = o > 0.001;
-      if (on !== L.shown) { L.slot.style.visibility = on ? '' : 'hidden'; L.shown = on; }
-    }
 
+    // Timeline (0–1 across the pinned section):
+    //   0.00–0.14  01 whole pair
+    //   0.14–0.38  zoom into the temple inlay, levelled
+    //   0.40–0.58  light sweeps across the weave      (02 text 0.26–0.60)
+    //   0.62–0.78  pull back out
+    //   0.78–1.00  03 weight counts up to 20 g
     function renderStory() {
       var p = clamp((scrollY() - storyTop) / storyLen);
 
-      // Camera position: hero framing, then centred on the right (desktop) or top (phone).
-      var h = smooth(0.03, 0.16, p);
-      var k = reduce ? 0 : smooth(0.10, 0.28, p) - smooth(0.48, 0.60, p); // zoom into the inlay and back out
-      var outro = 1 - 0.06 * smooth(0.82, 0.92, p);
+      var h = smooth(0.04, 0.20, p); // leaving the hero framing
+      var k = reduce ? 0 : smooth(0.14, 0.38, p) - smooth(0.62, 0.78, p);
+      var outro = 1 - 0.06 * smooth(0.76, 0.88, p);
       var cx = (mobile ? 0.5 : lerp(0.60, 0.66, h)) * vw + pointer.x * 12;
       var cy = (mobile ? lerp(0.56, 0.34, h) : lerp(0.62, 0.5, h)) * vh + pointer.y * 8;
       var inlayPx = mobile ? 0.78 * vw : Math.min(0.42 * vw, 620);
 
-      ORDER.forEach(function (id) {
-        var L = LAYERS[id];
-        var zIn = inlayPx / (L.len * W);
-        var f = [lerp(L.full[0], L.inlay[0], k), lerp(L.full[1], L.inlay[1], k)];
-        place(L, f, lerp(1, zIn, k) * outro, -L.angle * k + pointer.x * 1, cx, cy);
-      });
-
-      var w = smooth(0.66, 0.78, p);
-      show(LAYERS.cSide, 1);
-      show(LAYERS.c34, 1 - smooth(0.445, 0.465, p));
-      show(LAYERS.bSide, w > 0 ? 1 : 0);
-      LAYERS.bSide.slot.style.clipPath = 'inset(0 0 0 ' + ((1 - w) * 100).toFixed(3) + '%)';
-      show(LAYERS.b34, smooth(0.82, 0.88, p));
+      var L = LAYERS.c34;
+      var zIn = inlayPx / (L.len * W);
+      var f = [lerp(L.full[0], L.inlay[0], k), lerp(L.full[1], L.inlay[1], k)];
+      place(L, f, lerp(1, zIn, k) * outro, -L.angle * k + pointer.x * 1, cx, cy);
 
       anchor.style.opacity = mobile ? h : k;
 
-      var showSheen = reduce ? 0 : fade(p, 0.28, 0.42, 0.02);
+      var showSheen = reduce ? 0 : fade(p, 0.40, 0.58, 0.02);
       sheen.style.opacity = showSheen;
       if (showSheen > 0) {
-        var a = project(LAYERS.c34, LAYERS.c34.inlay);
+        var a = project(L, L.inlay);
         var span = inlayPx * 0.7;
-        sheen.style.transform = 'translate3d(' + (a[0] + lerp(-span, span, clamp((p - 0.28) / 0.14))) + 'px,' + a[1] + 'px,0) rotate(18deg)';
+        sheen.style.transform = 'translate3d(' + (a[0] + lerp(-span, span, clamp((p - 0.40) / 0.18))) + 'px,' + a[1] + 'px,0) rotate(18deg)';
       }
 
-      var showMark = fade(p, 0.57, 0.64, 0.02);
-      mark.style.opacity = showMark;
-      if (showMark > 0) {
-        var m = project(LAYERS.cSide, LAYERS.cSide.pins);
-        mark.style.transform = 'translate3d(' + m[0] + 'px,' + m[1] + 'px,0)';
-      }
-
-      var lineX = (1 - w) * vw;
-      wipe.style.opacity = w > 0 && w < 1 ? 1 : 0;
-      wipe.style.transform = 'translate3d(' + lineX + 'px,0,0)';
-      var showLabels = fade(p, 0.66, 0.80, 0.02);
-      labelA.style.opacity = showLabels;
-      labelB.style.opacity = showLabels;
-      labelA.style.transform = 'translate3d(' + (Math.max(lineX, mobile ? 90 : vw * 0.4) - 14) + 'px,0,0) translateX(-100%)';
-      labelB.style.transform = 'translate3d(' + (Math.min(lineX, vw - 90) + 14) + 'px,0,0)';
-
-      if (count) count.textContent = Math.round(20 * smooth(0.85, 0.94, p));
+      if (count) count.textContent = Math.round(20 * smooth(0.80, 0.92, p));
 
       chaps.forEach(function (c) {
         var o = fade(p, +c.dataset.in, +c.dataset.out);

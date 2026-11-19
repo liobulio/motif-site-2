@@ -8,8 +8,8 @@ html.lenis { scroll-behavior: auto; }
 .site-header--over { position: absolute; left: 0; right: 0; top: 0; z-index: 5; border-bottom: 0; }
 .site-header--over:has(.nav.is-open) { background: var(--ground); }
 
-.story { position: relative; height: 600vh; }
-@media (max-width: 899px) { .story { height: 520vh; } }
+.story { position: relative; height: 380vh; }
+@media (max-width: 899px) { .story { height: 340vh; } }
 
 .story__stage {
   position: sticky; top: 0;
@@ -18,7 +18,7 @@ html.lenis { scroll-behavior: auto; }
   background: var(--ground);
 }
 
-/* One slot per image. The page colour is baked into the images,
+/* One slot per image (currently one). The page colour is baked into the images,
    so no blending is needed and each frame is a plain transform. */
 .slot { position: absolute; inset: 0; will-change: opacity; }
 .slot img {
@@ -45,23 +45,6 @@ html.lenis { scroll-behavior: auto; }
   background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.38) 50%, rgba(255,255,255,0) 100%);
   pointer-events: none; opacity: 0; will-change: transform, opacity;
 }
-
-/* Ring on the gold pins */
-.story__mark {
-  position: absolute; left: 0; top: 0;
-  width: 60px; height: 60px; margin: -30px 0 0 -30px;
-  border: 1.5px solid var(--accent); border-radius: 50%;
-  pointer-events: none; opacity: 0;
-}
-
-/* Colour wipe */
-.story__wipe { position: absolute; top: 0; bottom: 0; left: 0; width: 1px; background: var(--ink); opacity: 0; pointer-events: none; will-change: transform; }
-.story__label {
-  position: absolute; top: 20%; left: 0;
-  font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink);
-  white-space: nowrap; opacity: 0; pointer-events: none;
-}
-@media (max-width: 899px) { .story__label { top: 14%; } .story__wipe { bottom: 44%; } }
 
 .story__bar { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: var(--accent); transform-origin: 0 0; transform: scaleX(0); }
 
